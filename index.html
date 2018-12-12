@@ -7,13 +7,21 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div class="wrapper">
-        <div class="content js-red-black-container"></div>
-        <div class="menu"></div>
+<div class="wrapper">
+    <div class="menu">
+        <div class="menu__item">
+            <label for="add-input">Add nodes</label>
+            <input id="add-input" class="js-add-input" value="">
+            <button type="button" class="js-add-button">Add</button>
+        </div>
     </div>
-    <script src="js/vendor/cytoscape.min.js"></script>
-    <script src="js/vendor/dagre.min.js"></script>
-    <script src="js/vendor/cytoscape-dagre.js"></script>
+    <div class="content">
+        <div class="node js-red-black-container">
+            <div class="js-child-left js-child-right"></div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,71 +1,66 @@
-var cy = window.cy = cytoscape({
-    container: document.getElementsByClassName('js-red-black-container')[0],
+const WebWorker = new Worker('js/worker.js');
 
-    boxSelectionEnabled: false,
-    autounselectify: true,
-
-    layout: {
-        name: 'dagre'
-    },
-
-    style: [
-        {
-            selector: 'node',
-            style: {
-                'content': 'data(id)',
-                'text-opacity': 0.5,
-                'text-valign': 'center',
-                'text-halign': 'right',
-                'background-color': '#11479e'
-            }
-        },
-
-        {
-            selector: 'edge',
-            style: {
-                'curve-style': 'bezier',
-                'width': 4,
-                'target-arrow-shape': 'triangle',
-                'line-color': '#9dbaea',
-                'target-arrow-color': '#9dbaea'
-            }
-        }
-    ],
-
-    elements: {
-        nodes: [
-            { data: { id: 'n0' } },
-            { data: { id: 'n1' } },
-            { data: { id: 'n2' } },
-            { data: { id: 'n3' } },
-            { data: { id: 'n4' } },
-            { data: { id: 'n5' } },
-            { data: { id: 'n6' } },
-            { data: { id: 'n7' } },
-            { data: { id: 'n8' } },
-            { data: { id: 'n9' } },
-            { data: { id: 'n10' } },
-            { data: { id: 'n11' } },
-            { data: { id: 'n12' } },
-            { data: { id: 'n13' } },
-            { data: { id: 'n14' } },
-            { data: { id: 'n15' } },
-            { data: { id: 'n16' } }
-        ],
-        edges: [
-            { data: { source: 'n0', target: 'n1' } },
-            { data: { source: 'n1', target: 'n2' } },
-            { data: { source: 'n1', target: 'n3' } },
-            { data: { source: 'n4', target: 'n5' } },
-            { data: { source: 'n4', target: 'n6' } },
-            { data: { source: 'n6', target: 'n7' } },
-            { data: { source: 'n6', target: 'n8' } },
-            { data: { source: 'n8', target: 'n9' } },
-            { data: { source: 'n8', target: 'n10' } },
-            { data: { source: 'n11', target: 'n12' } },
-            { data: { source: 'n12', target: 'n13' } },
-            { data: { source: 'n13', target: 'n14' } },
-            { data: { source: 'n13', target: 'n15' } },
-        ]
-    },
+const AddInput = $('.js-add-input');
+$('.js-add-button').on('click', function (event) {
+    if (AddInput.val() !== "" && !nodeExists(AddInput.val())) {
+        let message = {};
+        message.action = 'INSERT';
+        message.key = AddInput.val();
+        console.log(message);
+        WebWorker.postMessage(message);
+    }
 });
+
+WebWorker.onmessage = function (message) {
+    console.log(message);
+    const data = message.data;
+    let $parent = findNode(data.parent);
+    if (nodeExists(data.key)) {
+        let $node = findNode(data.key);
+        if ($node.parents('.node:first').attr('data-key') === data.parent) {
+            let nodeSide = '.js-child-left';
+            if (data.key > data.parent) {
+                nodeSide = '.js-child-right'
+            }
+            $parent.find(nodeSide).appendTo($node);
+        }
+        $node.find('.node__key:first').removeClass('node__key--' + getOppositeColor(data.color)).addClass('node__key--' + data.color);
+    } else {
+        const node = createNode(data.key, data.color);
+        let nodeSide = '.js-child-left';
+        if (data.key > data.parent) {
+            nodeSide = '.js-child-right'
+        }
+        $parent.find(nodeSide).html(node);
+    }
+};
+
+function createNode(key, color) {
+    return `
+    <div data-key="${key}" class="node">
+        <span class="node__key node__key--${color}">${key}</span>
+        <div class="node__children">
+            <div class="node__children__left js-child-left"></div>
+            <div class="node__children__right js-child-right"></div>
+        </div>
+    </div>
+    `;
+}
+
+function nodeExists(key) {
+    return $('.node[data-key="' + key + '"]').length !== 0;
+}
+
+function findNode(key) {
+    if (key === null) {
+        return $('.js-red-black-container');
+    }
+    return $('.node[data-key="' + key + '"]')
+}
+
+function getOppositeColor(color) {
+    if (color === 'red') {
+        return 'black';
+    }
+    return 'red';
+}

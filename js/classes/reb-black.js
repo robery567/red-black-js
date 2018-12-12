@@ -1,4 +1,50 @@
-const RED = 'RED', BLACK = 'BLACK';
+const RED = 'red', BLACK = 'black';
+
+class MessageQueue {
+
+    constructor(){
+        this.messages = [];
+        this.interval = null;
+    }
+
+    add(message){
+        this.messages.push(message);
+        if(this.interval === null){
+            this.process();
+        }
+    }
+
+    process(){
+        const classInstance = this;
+        this.interval = setInterval(function () {
+            classInstance.processInterval();
+        },300)
+    }
+
+    processInterval(){
+        if(this.messages.length !== 0){
+            postMessage(this.messages.shift());
+        }else {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
+    }
+
+    /**
+     *
+     * @param Node {RedBlackNode}
+     */
+    sendChanges(Node){
+        let message = {};
+        message.key = Node.key;
+        message.color = Node.color;
+        message.parent = Node.Parent === null ? null : Node.Parent.key;
+        this.add(message);
+    }
+
+}
+
+const MessageSender = new MessageQueue();
 
 class RedBlackNode {
 
@@ -35,8 +81,11 @@ class RedBlackNode {
         let Uncle = Node.getUncle();
         while (Uncle !== null && Uncle.color === RED) {
             Node.Parent.color = BLACK;
+            MessageSender.sendChanges(Node.Parent);
             Uncle.color = BLACK;
+            MessageSender.sendChanges(Uncle);
             Node.Parent.Parent.color = RED;
+            MessageSender.sendChanges(Node.Parent.Parent);
             Node = Node.Parent.Parent;
             Uncle = Node.getUncle();
         }
@@ -60,11 +109,15 @@ class RedBlackNode {
 
             if (Parent.Right !== null) {
                 Parent.Right.Parent = Grandparent;
+                MessageSender.sendChanges(Parent.Right);
             }
             Grandparent.Left = Parent.Right;
 
             Parent.Right = Grandparent;
             Grandparent.Parent = Parent;
+
+            MessageSender.sendChanges(Parent);
+            MessageSender.sendChanges(Grandparent);
         }
     }
 
@@ -86,11 +139,15 @@ class RedBlackNode {
 
             if (Parent.Left !== null) {
                 Parent.Left.Parent = Grandparent;
+                MessageSender.sendChanges(Parent.Left);
             }
             Grandparent.Right = Parent.Left;
 
             Parent.Left = Grandparent;
             Grandparent.Parent = Parent;
+
+            MessageSender.sendChanges(Parent);
+            MessageSender.sendChanges(Grandparent);
         }
     }
 
@@ -123,6 +180,10 @@ class RedBlackNode {
                 this.Left.Parent = Parent;
             }
             this.Left = Parent;
+
+            MessageSender.sendChanges(this);
+            MessageSender.sendChanges(Parent);
+            MessageSender.sendChanges(Grandparent);
         }
     }
 
@@ -156,6 +217,10 @@ class RedBlackNode {
                 this.Right.Parent = Parent;
             }
             this.Right = Parent;
+
+            MessageSender.sendChanges(this);
+            MessageSender.sendChanges(Parent);
+            MessageSender.sendChanges(Grandparent);
         }
     }
 }
@@ -193,11 +258,15 @@ class RedBlackTree {
             }
         }
         if (Node.Parent === null) {
+            Node.color = BLACK;
             this.Root = Node;
+            MessageSender.sendChanges(this.Root);
             return Node
         }
         if (Node.Parent.Parent === null) {
+            Node.Parent.color = BLACK;
             this.Root = Node.Parent;
+            MessageSender.sendChanges(this.Root);
             return Node
         }
         return Node;
@@ -226,14 +295,16 @@ class RedBlackTree {
         const Node = new RedBlackNode(key);
         if (this.Root === null) {
             this.Root = Node;
+            MessageSender.sendChanges(Node);
             return Node;
         }
         let Cursor = this.Root;
-        while (Cursor !== null) {
+        while (true) {
             if (Node.key < Cursor.key) {
                 if (Cursor.Left === null) {
                     Cursor.Left = Node;
                     Node.Parent = Cursor;
+                    MessageSender.sendChanges(Node);
                     return Node;
                 }
                 Cursor = Cursor.Left;
@@ -241,12 +312,13 @@ class RedBlackTree {
                 if (Cursor.Right === null) {
                     Cursor.Right = Node;
                     Node.Parent = Cursor;
+                    MessageSender.sendChanges(Node);
                     return Node;
                 }
                 Cursor = Cursor.Right;
             }
         }
-        return Node;
     }
 
 }
+
