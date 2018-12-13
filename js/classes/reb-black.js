@@ -68,144 +68,12 @@ class RedBlackNode {
     }
 
     /**
-     * @returns {null|RedBlackNode}
+     * @param Node {RedBlackNode}
      */
-    getUncle() {
-        const Parent = this.Parent;
-        if (Parent === null) {
-            return null;
-        }
-        const Grandparent = Parent.Parent;
-        if (Grandparent === null) {
-            return null;
-        }
-        if (Grandparent.Left === Parent) {
-            return Grandparent.Right;
-        } else {
-            return Grandparent.Left;
-        }
-    }
-
-    leftLeftCase() {
-        let Parent = this.Parent;
-        let Grandparent = Parent.Parent;
-
-        Parent.Parent = Grandparent.Parent;
-        if (Grandparent.Parent !== null) {
-            if (Grandparent.Parent.Left === Grandparent) {
-                Grandparent.Parent.Left = Parent;
-            } else {
-                Grandparent.Parent.Right = Parent
-            }
-        }
-
-        if (Parent.Right !== null) {
-            Parent.Right.Parent = Grandparent;
-        }
-        Grandparent.Left = Parent.Right;
-
-        Parent.Right = Grandparent;
-        Grandparent.Parent = Parent;
-
-
-        MessageSender.sendChanges(this);
-        Parent.color = BLACK;
-        Grandparent.color = RED;
-        MessageSender.sendChanges(this);
-    }
-
-    rightRightCase() {
-        let Parent = this.Parent;
-        let Grandparent = Parent.Parent;
-
-        Parent.Parent = Grandparent.Parent;
-        if (Grandparent.Parent !== null) {
-            if (Grandparent.Parent.Left === Grandparent) {
-                Grandparent.Parent.Left = Parent;
-            } else {
-                Grandparent.Parent.Right = Parent
-            }
-        }
-
-        if (Parent.Left !== null) {
-            Parent.Left.Parent = Grandparent;
-        }
-        Grandparent.Right = Parent.Left;
-
-        Parent.Left = Grandparent;
-        Grandparent.Parent = Parent;
-
-        MessageSender.sendChanges(this);
-        Parent.color = BLACK;
-        Grandparent.color = RED;
-        MessageSender.sendChanges(this);
-    }
-
-    leftRightCase() {
-        let Parent = this.Parent;
-        let Grandparent = Parent.Parent;
-
-        this.Parent = Grandparent.Parent;
-        if (Grandparent.Parent !== null) {
-            if (Grandparent.Parent.Left === Grandparent) {
-                Grandparent.Parent.Left = this;
-            } else {
-                Grandparent.Parent.Right = this
-            }
-        }
-
-        Grandparent.Parent = this;
-        Grandparent.Left = this.Right;
-        if (this.Right !== null) {
-            this.Right.Parent = Grandparent;
-        }
-        this.Right = Grandparent;
-
-        Parent.Right = this.Left;
-        Parent.Parent = this;
-        if (this.Left !== null) {
-            this.Left.Parent = Parent;
-        }
-        this.Left = Parent;
-
-        MessageSender.sendChanges(this);
-        this.color = BLACK;
-        Grandparent.color = RED;
-        MessageSender.sendChanges(this);
-    }
-
-
-    rightLeftCase() {
-        let Parent = this.Parent;
-        let Grandparent = Parent.Parent;
-
-        this.Parent = Grandparent.Parent;
-        if (Grandparent.Parent !== null) {
-            if (Grandparent.Parent.Left === Grandparent) {
-                Grandparent.Parent.Left = this;
-            } else {
-                Grandparent.Parent.Right = this
-            }
-        }
-
-        Grandparent.Parent = this;
-        Grandparent.Right = this.Left;
-        if (this.Left !== null) {
-            this.Left.Parent = Grandparent;
-        }
-        this.Left = Grandparent;
-
-        Parent.Left = this.Right;
-        Parent.Parent = this;
-        if (this.Right !== null) {
-            this.Right.Parent = Parent;
-        }
-        this.Right = Parent;
-
-        MessageSender.sendChanges(this);
-        this.color = BLACK;
-        Grandparent.color = RED;
-        MessageSender.sendChanges(this);
+    swapColor(Node) {
+        const tmp = this.color;
+        this.color = Node.color;
+        Node.color = tmp;
     }
 }
 
@@ -219,86 +87,138 @@ class RedBlackTree {
         this.Root = null;
     }
 
-    recolor(Node) {
-        let Uncle = Node.getUncle();
-        if (Uncle !== null && Uncle.color === RED) {
-            Node.Parent.color = BLACK;
-            Uncle.color = BLACK;
-            Node.Parent.Parent.color = RED;
-            Node = Node.Parent.Parent;
-            MessageSender.sendChanges(Node);
-            this.balanceTree(Node);
-        }
-    }
 
     insert(key) {
         const Node = this.binarySearchTreeInsert(key);
         this.balanceTree(Node);
     }
 
-    /**
-     * @param Node {RedBlackNode}
-     * @returns {RedBlackNode}
-     */
-    balanceTree(Node){
-        if(Node === this.Root){
-            Node.color = BLACK;
-            MessageSender.sendChanges(this.Root);
+    rotateLeft(Node) {
+        let Right = Node.Right;
+
+        Node.Right = Right.Left;
+
+        if (Node.Right !== null) {
+            Node.Right.Parent = Node;
         }
-        const Uncle = Node.getUncle();
-        if (Uncle !== null) {
-            if (Uncle.color === RED) {
-                this.recolor(Node);
-            } else {
-                if (Uncle.Parent.Right === Uncle) {
-                    if (Node.Parent.Left === Node) {
-                        Node.leftLeftCase();
-                    } else {
-                        Node.leftRightCase();
-                    }
-                } else {
-                    if (Node.Parent.Right === Node) {
-                        Node.rightRightCase();
-                    } else {
-                        Node.rightLeftCase();
-                    }
-                }
-            }
-        }else {
-            if(Node.Parent !== null && Node.Parent.Parent !== null){
-                if(Node.Parent.Parent.Right === null){
-                    Node.leftLeftCase();
-                }else {
-                    Node.rightRightCase();
-                }
-            }
-        }
+        Right.Parent = Node.Parent;
+
         if (Node.Parent === null) {
-            this.Root = Node;
-            return Node
+            this.Root = Right;
+        } else if (Node === Node.Parent.Left) {
+            Node.Parent.Left = Right;
+        } else {
+            Node.Parent.Right = Right;
         }
-        if (Node.Parent.Parent === null) {
-            this.Root = Node.Parent;
-            return Node
-        }
-        return Node;
+
+        Right.Left = Node;
+        Node.Parent = Right;
     }
 
-    /*
-    search(key) {
-        let Cursor = this.Root;
-        while (Cursor !== null) {
-            if (Cursor.key === key) {
-                return Cursor;
-            } else if (key < Cursor.key) {
-                Cursor = Cursor.Left;
-            } else {
-                Cursor = Cursor.Right;
+    rotateRight(Node) {
+        let Left = Node.Left;
+
+        Node.Left = Left.Right;
+
+        if (Node.Left !== null) {
+            Node.Left.Parent = Node;
+        }
+        Left.Parent = Node.Parent;
+
+        if (Node.Parent == null) {
+            this.Root = Left;
+        } else if (Node === Node.Parent.Left) {
+            Node.Parent.Left = Left;
+        } else {
+            Node.Parent.Right = Left;
+        }
+
+        Left.Right = Node;
+        Node.Parent = Left;
+    }
+
+    balanceTree(Node) {
+        while (Node !== this.Root && Node.color !== BLACK && Node.Parent.color === RED) {
+
+            let Parent = Node.Parent;
+            let Grandparent = Node.Parent.Parent;
+
+            /*  Case : A
+                Parent of pt is left child of Grand-parent of pt */
+            if (Parent === Grandparent.Left) {
+
+                let Uncle = Grandparent.Right;
+
+                /* Case : 1
+                   The uncle of pt is also red
+                   Only Recoloring required */
+                if (Uncle != null && Uncle.color === RED) {
+                    Grandparent.color = RED;
+                    Parent.color = BLACK;
+                    Uncle.color = BLACK;
+                    Node = Grandparent;
+                    MessageSender.sendChanges(this.Root);
+                } else {
+                    /* Case : 2
+                       pt is right child of its parent
+                       Left-rotation required */
+                    if (Node === Parent.Right) {
+                        this.rotateLeft(Parent);
+                        Node = Parent;
+                        Parent = Node.Parent;
+                        MessageSender.sendChanges(this.Root);
+                    }
+
+                    /* Case : 3
+                       pt is left child of its parent
+                       Right-rotation required */
+                    this.rotateRight(Grandparent);
+                    Parent.swapColor(Grandparent);
+                    Node = Parent;
+                    MessageSender.sendChanges(this.Root);
+                }
+            }
+
+            /* Case : B
+               Parent of pt is right child of Grand-parent of pt */
+            else {
+                let Uncle = Grandparent.Left;
+
+                /*  Case : 1
+                    The uncle of pt is also red
+                    Only Recoloring required */
+                if ((Uncle !== null) && (Uncle.color === RED)) {
+                    Grandparent.color = RED;
+                    Parent.color = BLACK;
+                    Uncle.color = BLACK;
+                    Node = Grandparent;
+                    MessageSender.sendChanges(this.Root);
+                } else {
+                    /* Case : 2
+                       pt is left child of its parent
+                       Right-rotation required */
+                    if (Node === Parent.Left) {
+                        this.rotateRight(Parent);
+                        Node = Parent;
+                        Parent = Node.Parent;
+                        MessageSender.sendChanges(this.Root);
+                    }
+
+                    /* Case : 3
+                       pt is right child of its parent
+                       Left-rotation required */
+                    this.rotateLeft(Grandparent);
+                    Parent.swapColor(Grandparent);
+                    Node = Parent;
+                    MessageSender.sendChanges(this.Root);
+                }
             }
         }
-        return Node;
+
+        this.Root.color = BLACK;
+        MessageSender.sendChanges(this.Root);
     }
-    */
+
 
     /**
      * Standard BST insert
