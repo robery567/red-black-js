@@ -40,12 +40,5 @@
 
 .node__children__left, .node__children__right{
     width: 300px;
-}
-
-.node__children__left{
     align-self: flex-start;
-}
-
-.node__children__right{
-    align-self: flex-end;
 }

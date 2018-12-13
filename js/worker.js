@@ -1,3 +1,4 @@
+importScripts('classes/constants.js');
 importScripts('classes/reb-black.js');
 
 let LOCK = false;
@@ -8,7 +9,7 @@ onmessage = function (event) {
     if (LOCK === true) {
         return;
     }
-    console.log(event);
+    LOCK = true;
     switch (event.data.action) {
         case 'INSERT':
             RBT.insert(event.data.key);

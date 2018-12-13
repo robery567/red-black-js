@@ -6,39 +6,23 @@ $('.js-add-button').on('click', function (event) {
         let message = {};
         message.action = 'INSERT';
         message.key = AddInput.val();
-        console.log(message);
         WebWorker.postMessage(message);
     }
 });
 
 WebWorker.onmessage = function (message) {
-    console.log(message);
-    const data = message.data;
-    let $parent = findNode(data.parent);
-    if (nodeExists(data.key)) {
-        let $node = findNode(data.key);
-        if ($node.parents('.node:first').attr('data-key') === data.parent) {
-            let nodeSide = '.js-child-left';
-            if (data.key > data.parent) {
-                nodeSide = '.js-child-right'
-            }
-            $parent.find(nodeSide).appendTo($node);
-        }
-        $node.find('.node__key:first').removeClass('node__key--' + getOppositeColor(data.color)).addClass('node__key--' + data.color);
-    } else {
-        const node = createNode(data.key, data.color);
-        let nodeSide = '.js-child-left';
-        if (data.key > data.parent) {
-            nodeSide = '.js-child-right'
-        }
-        $parent.find(nodeSide).html(node);
-    }
+    console.log(message.data);
+    $('.js-red-black-container > .js-child-left.js-child-right').html('');
+    drawTree(message.data);
 };
 
-function createNode(key, color) {
+/**
+ * @param node {RedBlackNode}
+ */
+function createNode(node) {
     return `
-    <div data-key="${key}" class="node">
-        <span class="node__key node__key--${color}">${key}</span>
+    <div data-key="${node.key}" class="node">
+        <span class="node__key node__key--${node.color}">${node.key}</span>
         <div class="node__children">
             <div class="node__children__left js-child-left"></div>
             <div class="node__children__right js-child-right"></div>
@@ -51,16 +35,34 @@ function nodeExists(key) {
     return $('.node[data-key="' + key + '"]').length !== 0;
 }
 
-function findNode(key) {
-    if (key === null) {
+/**
+ * @param node {RedBlackNode}
+ */
+function findNode(node) {
+    if (node === null) {
         return $('.js-red-black-container');
     }
-    return $('.node[data-key="' + key + '"]')
+    return $('.node[data-key="' + node.key + '"]')
 }
 
-function getOppositeColor(color) {
-    if (color === 'red') {
-        return 'black';
+
+/**
+ * @param node {RedBlackNode}
+ */
+function drawTree(node) {
+    if(node !== null){
+        const $parent = findNode(node.Parent);
+        const $node = createNode(node);
+        let nodeSide = '.node__children:first > .js-child-left';
+        if (node.Parent !== null && parseInt(node.key) > parseInt(node.Parent.key)) {
+            nodeSide = '.node__children:first > .js-child-right'
+        }
+        $parent.find(nodeSide).first().html($node);
+        if(node.Left !== null){
+            drawTree(node.Left);
+        }
+        if(node.Right !== null){
+            drawTree(node.Right);
+        }
     }
-    return 'red';
 }
