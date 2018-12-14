@@ -12,9 +12,10 @@ onmessage = function (event) {
     LOCK = true;
     switch (event.data.action) {
         case 'INSERT':
-            RBT.insert(event.data.key);
+            RBT.insert(parseInt(event.data.key));
             break;
         case 'DELETE':
+            RBT.delete(parseInt(event.data.key));
             break;
     }
 };

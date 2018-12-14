@@ -2,10 +2,22 @@ const WebWorker = new Worker('js/worker.js');
 
 const AddInput = $('.js-add-input');
 $('.js-add-button').on('click', function (event) {
+    event.preventDefault();
     if (AddInput.val() !== "" && !nodeExists(AddInput.val())) {
         let message = {};
         message.action = 'INSERT';
         message.key = AddInput.val();
+        WebWorker.postMessage(message);
+    }
+});
+
+const DeleteInput = $('.js-delete-input');
+$('.js-delete-button').on('click', function (event) {
+    event.preventDefault();
+    if (DeleteInput.val() !== "" && nodeExists(DeleteInput.val())) {
+        let message = {};
+        message.action = 'DELETE';
+        message.key = DeleteInput.val();
         WebWorker.postMessage(message);
     }
 });

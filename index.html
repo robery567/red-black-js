@@ -4,24 +4,30 @@
     <meta charset="UTF-8">
     <title>Red Black JS</title>
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 <div class="wrapper">
-    <div class="menu">
+    <nav class="menu">
         <div class="menu__item">
             <label for="add-input">Add nodes</label>
             <input id="add-input" class="js-add-input" value="">
             <button type="button" class="js-add-button">Add</button>
         </div>
-    </div>
-    <div class="content">
+        <div class="menu__item">
+            <label for="delete-input">Delete nodes</label>
+            <input id="delete-input" class="js-delete-input" value="">
+            <button type="button" class="js-delete-button">Delete</button>
+        </div>
+    </nav>
+    <section class="content">
         <div class="node js-red-black-container">
             <div class="node__children">
                 <div class="js-child-left js-child-right"></div>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="js/classes/constants.js"></script>
