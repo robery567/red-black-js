@@ -48,6 +48,10 @@ class MessageQueue {
      * @param Node {RedBlackNode}
      */
     sendChanges(Node) {
+        if(Node === null){
+            this.add(null);
+            return;
+        }
         while (Node.Parent !== null) {
             Node = Node.Parent;
         }
@@ -100,7 +104,7 @@ class RedBlackNode {
      * @param Node {RedBlackNode}
      */
     swapValues(Node) {
-        const temp = Node.key;
+        const temp = this.key;
         this.key = Node.key;
         Node.key = temp;
     }

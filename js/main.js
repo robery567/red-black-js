@@ -24,8 +24,10 @@ $('.js-delete-button').on('click', function (event) {
 
 WebWorker.onmessage = function (message) {
     console.log(message.data);
-    $('.js-red-black-container > .js-child-left.js-child-right').html('');
-    drawTree(message.data);
+    $('.js-red-black-container .js-child-left.js-child-right').html('');
+    if (message.data !== null) {
+        drawTree(message.data);
+    }
 };
 
 /**
@@ -34,6 +36,7 @@ WebWorker.onmessage = function (message) {
 function createNode(node) {
     return `
     <div data-key="${node.key}" class="node">
+        <hr class="node__line">
         <span class="node__key node__key--${node.color}">${node.key}</span>
         <div class="node__children">
             <div class="node__children__left js-child-left"></div>
@@ -62,7 +65,7 @@ function findNode(node) {
  * @param node {RedBlackNode}
  */
 function drawTree(node) {
-    if(node !== null){
+    if (node !== null) {
         const $parent = findNode(node.Parent);
         const $node = createNode(node);
         let nodeSide = '.node__children:first > .js-child-left';
@@ -70,10 +73,10 @@ function drawTree(node) {
             nodeSide = '.node__children:first > .js-child-right'
         }
         $parent.find(nodeSide).first().html($node);
-        if(node.Left !== null){
+        if (node.Left !== null) {
             drawTree(node.Left);
         }
-        if(node.Right !== null){
+        if (node.Right !== null) {
             drawTree(node.Right);
         }
     }

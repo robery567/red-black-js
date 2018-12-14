@@ -15,9 +15,49 @@
 .menu{
     display: flex;
     justify-content: space-around;
-    background-color: rgb(156,39,176);
-    color: rgb(255,255,255);
+    background-color: #9C27B0;
+    color: white;
     box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.menu__item__label{
+    display: none;
+}
+
+.menu__item__input{
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: inherit;
+    background-color: #8C04A4;
+    background-clip: padding-box;
+    border: none;
+    border-radius: .25rem;
+}
+
+.menu__item__input::placeholder{
+    color: inherit;
+}
+
+.menu__item__input:focus {
+    outline-color: #6A037C;
+}
+
+.menu__item__button{
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: .25rem;
+    background-color: #8C04A4;
+    color: inherit;
 }
 
 .node{
@@ -35,6 +75,7 @@
     justify-content: center;
     align-items: center;
     border-radius: 50%;
+    z-index: 2;
 }
 
 .node__key--red{
@@ -54,4 +95,30 @@
     min-width: 75px;
     align-self: flex-start;
     flex: 1 1 0;
+}
+
+.node__line{
+    width: 50%;
+    border-bottom: 1px solid purple;
+    margin: 0;
+}
+
+.node__line{
+    display: none;
+    z-index: 1;
+}
+
+.node__children__left .node__line,.node__children__right .node__line{
+    display: block;
+}
+
+/* TODO caculate angle based on width */
+.node__children__left > .node > .node__line{
+    align-self: flex-end;
+    transform: rotate(-20deg);
+}
+
+.node__children__right > .node > .node__line{
+    align-self: flex-start;
+    transform: rotate(20deg);
 }
