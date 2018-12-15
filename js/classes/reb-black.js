@@ -5,7 +5,7 @@ class MessageQueue {
      */
     constructor() {
         this.messages = [];
-        this.interval = null;
+        this.interval = undefined;
     }
 
     /**
@@ -13,11 +13,13 @@ class MessageQueue {
      * @param message
      */
     add(message) {
-        this.messages.push(message);
-        if (this.interval === null) {
+        if (this.interval === undefined) {
+            this.messages.push({action:'start'});
             this.process();
             LOCK = true;
         }
+        message.action = 'draw';
+        this.messages.push(message);
     }
 
     /**
@@ -27,7 +29,7 @@ class MessageQueue {
         const classInstance = this;
         this.interval = setInterval(function () {
             classInstance.processInterval();
-        }, 300)
+        }, 500)
     }
 
     /**
@@ -37,8 +39,9 @@ class MessageQueue {
         if (this.messages.length !== 0) {
             postMessage(this.messages.shift());
         } else {
+            postMessage({action:'stop'});
             clearInterval(this.interval);
-            this.interval = null;
+            this.interval = undefined;
             LOCK = false;
         }
     }
@@ -48,11 +51,11 @@ class MessageQueue {
      * @param Node {RedBlackNode}
      */
     sendChanges(Node) {
-        if(Node === null){
-            this.add(null);
+        if(Node === undefined){
+            this.add(undefined);
             return;
         }
-        while (Node.Parent !== null) {
+        while (Node.Parent !== undefined) {
             Node = Node.Parent;
         }
         this.add(this._makeTree(Node));
@@ -65,9 +68,9 @@ class MessageQueue {
         return {
             key: Node.key,
             color: Node.color,
-            Left: Node.Left !== null ? this._makeTree(Node.Left) : null,
-            Right: Node.Right !== null ? this._makeTree(Node.Right) : null,
-            Parent: Node.Parent !== null ? {key: Node.Parent.key} : null
+            Left: Node.Left !== undefined ? this._makeTree(Node.Left) : undefined,
+            Right: Node.Right !== undefined ? this._makeTree(Node.Right) : undefined,
+            Parent: Node.Parent !== undefined ? {key: Node.Parent.key} : undefined
         };
     }
 
@@ -82,9 +85,9 @@ class RedBlackNode {
      * @param key
      */
     constructor(key) {
-        this.Left = null;
-        this.Right = null;
-        this.Parent = null;
+        this.Left = undefined;
+        this.Right = undefined;
+        this.Parent = undefined;
         this.color = RED;
         this.key = key;
     }
@@ -119,11 +122,11 @@ class RedBlackNode {
 
     /**
      * Gets the sibling of the node
-     * @returns {RedBlackNode|null}
+     * @returns {RedBlackNode|undefined}
      */
     getSibling() {
-        if (this.Parent === null)
-            return null;
+        if (this.Parent === undefined)
+            return undefined;
 
         if (this.isOnLeft()) {
             return this.Parent.Right;
@@ -138,7 +141,7 @@ class RedBlackNode {
      */
     getSuccessor() {
         let Cursor = this;
-        while (Cursor.Left !== null) {
+        while (Cursor.Left !== undefined) {
             Cursor = Cursor.Left;
         }
 
@@ -150,7 +153,7 @@ class RedBlackNode {
      * @returns {boolean}
      */
     hasRedChild() {
-        return (this.Left !== null && this.Left.color === RED) || (this.Right !== null && this.Right.color === RED);
+        return (this.Left !== undefined && this.Left.color === RED) || (this.Right !== undefined && this.Right.color === RED);
     }
 
     /**
@@ -158,7 +161,7 @@ class RedBlackNode {
      * @param Node {RedBlackNode}
      */
     static isBlack(Node) {
-        if (Node === null) {
+        if (Node === undefined) {
             return true;
         }
         return Node.color === BLACK;
@@ -172,17 +175,17 @@ class RedBlackTree {
          * The Root of the Red Black Tree
          * @type {RedBlackNode}
          */
-        this.Root = null;
+        this.Root = undefined;
     }
 
     /**
      * Finds the node with the given key
      * @param key
-     * @returns {RedBlackNode|null}
+     * @returns {RedBlackNode|undefined}
      */
     find(key) {
         let Cursor = this.Root;
-        while (Cursor !== null) {
+        while (Cursor !== undefined) {
             if (Cursor.key === key) {
                 return Cursor;
             } else if (key < Cursor.key) {
@@ -199,7 +202,7 @@ class RedBlackTree {
      * @param key
      */
     insert(key) {
-        if (this.find(key) === null) {
+        if (this.find(key) === undefined) {
             const Node = this.binarySearchTreeInsert(key);
             this.balanceTree(Node);
         }
@@ -211,7 +214,7 @@ class RedBlackTree {
      */
     delete(key) {
         const Node = this.find(key);
-        if (Node !== null) {
+        if (Node !== undefined) {
             this.deleteNode(Node);
         }
     }
@@ -224,12 +227,12 @@ class RedBlackTree {
 
         Node.Right = Right.Left;
 
-        if (Node.Right !== null) {
+        if (Node.Right !== undefined) {
             Node.Right.Parent = Node;
         }
         Right.Parent = Node.Parent;
 
-        if (Node.Parent === null) {
+        if (Node.Parent === undefined) {
             this.Root = Right;
         } else if (Node === Node.Parent.Left) {
             Node.Parent.Left = Right;
@@ -249,12 +252,12 @@ class RedBlackTree {
 
         Node.Left = Left.Right;
 
-        if (Node.Left !== null) {
+        if (Node.Left !== undefined) {
             Node.Left.Parent = Node;
         }
         Left.Parent = Node.Parent;
 
-        if (Node.Parent == null) {
+        if (Node.Parent === undefined) {
             this.Root = Left;
         } else if (Node === Node.Parent.Left) {
             Node.Parent.Left = Left;
@@ -281,7 +284,7 @@ class RedBlackTree {
                 /* Case : 1
                    The uncle of pt is also red
                    Only Recoloring required */
-                if (Uncle != null && Uncle.color === RED) {
+                if (Uncle !== undefined && Uncle.color === RED) {
                     GrandParent.color = RED;
                     Parent.color = BLACK;
                     Uncle.color = BLACK;
@@ -316,7 +319,7 @@ class RedBlackTree {
                 /*  Case : 1
                     The uncle of pt is also red
                     Only Recoloring required */
-                if ((Uncle !== null) && (Uncle.color === RED)) {
+                if ((Uncle !== undefined) && (Uncle.color === RED)) {
                     GrandParent.color = RED;
                     Parent.color = BLACK;
                     Uncle.color = BLACK;
@@ -356,7 +359,7 @@ class RedBlackTree {
      */
     binarySearchTreeInsert(key) {
         const Node = new RedBlackNode(key);
-        if (this.Root === null) {
+        if (this.Root === undefined) {
             this.Root = Node;
             MessageSender.sendChanges(this.Root);
             return Node;
@@ -364,7 +367,7 @@ class RedBlackTree {
         let Cursor = this.Root;
         while (true) {
             if (Node.key < Cursor.key) {
-                if (Cursor.Left === null) {
+                if (Cursor.Left === undefined) {
                     Cursor.Left = Node;
                     Node.Parent = Cursor;
                     MessageSender.sendChanges(this.Root);
@@ -372,7 +375,7 @@ class RedBlackTree {
                 }
                 Cursor = Cursor.Left;
             } else {
-                if (Cursor.Right === null) {
+                if (Cursor.Right === undefined) {
                     Cursor.Right = Node;
                     Node.Parent = Cursor;
                     MessageSender.sendChanges(this.Root);
@@ -386,20 +389,20 @@ class RedBlackTree {
 // find node that replaces a deleted node in BST 
     static binarySearchTreeReplace(Node) {
         // when node have 2 children
-        if (Node.Left !== null && Node.Right != null) {
+        if (Node.Left !== undefined && Node.Right !== undefined) {
             return Node.Right.getSuccessor();
         }
 
         // when leaf
-        if (Node.Left === null && Node.Right == null) {
-            return null;
+        if (Node.Left === undefined && Node.Right === undefined) {
+            return undefined;
         }
 
         // when single child
-        if (Node.Left !== null) {
+        if (Node.Left !== undefined) {
             return Node.Left;
         } else {
-            return Node.right;
+            return Node.Right;
         }
     }
 
@@ -413,11 +416,11 @@ class RedBlackTree {
         let blackBlack = RedBlackNode.isBlack(Replacement) && Node.color === BLACK;
         let Parent = Node.Parent;
 
-        if (Replacement == null) {
-            // Replacement is null therefore Node is leaf
+        if (Replacement === undefined) {
+            // Replacement is undefined therefore Node is leaf
             if (Node === this.Root) {
-                // Node is root, making root null
-                this.Root = null;
+                // Node is root, making root undefined
+                this.Root = undefined;
             } else {
                 if (blackBlack) {
                     // Replacement and Node both black
@@ -425,34 +428,34 @@ class RedBlackTree {
                     this.fixDoubleBlack(Node);
                 } else {
                     // Replacement or Node is red
-                    if (Node.getSibling() != null)
-                    // sibling is not null, make it red"
+                    if (Node.getSibling() !== undefined)
+                    // sibling is not undefined, make it red"
                         Node.getSibling().color = RED;
                 }
 
                 // delete Node from the tree
                 if (Node.isOnLeft()) {
-                    Parent.Left = null;
+                    Parent.Left = undefined;
                 } else {
-                    Parent.Right = null;
+                    Parent.Right = undefined;
                 }
             }
             MessageSender.sendChanges(this.Root);
             return;
         }
 
-        if (Node.Left == null || Node.Right === null) {
+        if (Node.Left === undefined || Node.Right === undefined) {
             // Node has 1 child
             if (Node === this.Root) {
                 // Node is root, assign the value of Replacement to Node, and delete Replacement
                 Node.key = Replacement.key;
-                Node.Left = Node.Right = null;
+                Node.Left = Node.Right = undefined;
             } else {
                 // Detach Node from tree and move Replacement up
                 if (Node.isOnLeft()) {
                     Parent.Left = Replacement;
                 } else {
-                    Parent.right = Replacement;
+                    Parent.Right = Replacement;
                 }
                 Replacement.Parent = Parent;
                 if (blackBlack) {
@@ -479,7 +482,7 @@ class RedBlackTree {
         }
 
         let Sibling = Node.getSibling(), Parent = Node.Parent;
-        if (Sibling == null) {
+        if (Sibling === undefined) {
             // No Sibling, double black pushed up
             this.fixDoubleBlack(Parent);
         } else {
@@ -501,7 +504,7 @@ class RedBlackTree {
                 // Sibling black
                 if (Sibling.hasRedChild()) {
                     // at least 1 red children
-                    if (Sibling.Left != null && Sibling.Left.color === RED) {
+                    if (Sibling.Left !== undefined && Sibling.Left.color === RED) {
                         if (Sibling.isOnLeft()) {
                             // Left Left
                             Sibling.Left.color = Sibling.color;
@@ -521,7 +524,7 @@ class RedBlackTree {
                     } else {
                         if (Sibling.isOnLeft()) {
                             // Left right
-                            Sibling.right.color = Parent.color;
+                            Sibling.Right.color = Parent.color;
                             MessageSender.sendChanges(this.Root);
                             this.rotateLeft(Sibling);
                             MessageSender.sendChanges(this.Root);
@@ -529,7 +532,7 @@ class RedBlackTree {
                             MessageSender.sendChanges(this.Root);
                         } else {
                             // right right
-                            Sibling.right.color = Sibling.color;
+                            Sibling.Right.color = Sibling.color;
                             Sibling.color = Parent.color;
                             MessageSender.sendChanges(this.Root);
                             this.rotateLeft(Parent);

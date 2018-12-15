@@ -1,4 +1,25 @@
-.wrapper{
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+    font-size: 100%;
+    vertical-align: baseline;
+}
+
+.wrapper {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -7,29 +28,34 @@
     background-color: #F5F5F6;
 }
 
-.content{
+.content {
     display: flex;
     justify-content: center;
 }
 
-.menu{
+.menu {
     display: flex;
     justify-content: space-around;
     background-color: #9C27B0;
     color: white;
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 3px 1px -2px rgba(0, 0, 0, .2), 0 1px 5px 0 rgba(0, 0, 0, .12);
     padding: 20px;
     margin-bottom: 20px;
 }
 
-.menu__item__label{
+.menu * {
+    transition: all 0.5s ease-in-out;
+    box-sizing: border-box;
+}
+
+.menu__item__label {
     display: none;
 }
 
-.menu__item__input{
-    padding: .375rem .75rem;
-    font-size: 1rem;
-    line-height: 1.5;
+.menu__item__input {
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
     color: inherit;
     background-color: #8C04A4;
     background-clip: padding-box;
@@ -37,37 +63,37 @@
     border-radius: .25rem;
 }
 
-.menu__item__input::placeholder{
+.menu__item__input::placeholder {
     color: inherit;
 }
 
-.menu__item__input:focus {
+.menu__item__input:focus, .menu__item__button:focus {
     outline-color: #6A037C;
 }
 
-.menu__item__button{
+.menu__item__button {
     font-weight: 400;
     text-align: center;
     white-space: nowrap;
     vertical-align: middle;
     user-select: none;
     border: 1px solid transparent;
-    padding: .375rem .75rem;
-    font-size: 1rem;
-    line-height: 1.5;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
     border-radius: .25rem;
     background-color: #8C04A4;
     color: inherit;
 }
 
-.node{
+.node {
     display: flex;
     flex-direction: column;
     align-items: center;
     min-width: 75px;
 }
 
-.node__key{
+.node__key {
     color: white;
     width: 25px;
     height: 25px;
@@ -78,47 +104,61 @@
     z-index: 2;
 }
 
-.node__key--red{
+.node__key--red {
     background-color: red;
 }
 
-.node__key--black{
+.node__key--black {
     background-color: black;
 }
 
-.node__children{
+.node__children {
     display: flex;
     align-items: flex-start;
 }
 
-.node__children__left, .node__children__right{
+.node__children__left, .node__children__right {
     min-width: 75px;
     align-self: flex-start;
     flex: 1 1 0;
 }
 
-.node__line{
+.node__line {
     width: 50%;
     border-bottom: 1px solid purple;
     margin: 0;
 }
 
-.node__line{
+.node__line {
     display: none;
     z-index: 1;
 }
 
-.node__children__left .node__line,.node__children__right .node__line{
+.node__children__left .node__line, .node__children__right .node__line {
     display: block;
 }
 
-/* TODO caculate angle based on width */
-.node__children__left > .node > .node__line{
+.node__children__left > .node > .node__line {
     align-self: flex-end;
-    transform: rotate(-20deg);
 }
 
-.node__children__right > .node > .node__line{
+.node__children__right > .node > .node__line {
     align-self: flex-start;
-    transform: rotate(20deg);
+}
+
+.overlay {
+    background-color: black;
+    opacity: 0;
+    width: 100%;
+    position: absolute;
+    z-index: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.overlay--show {
+    height: 100%;
+    top: 0;
+    opacity: 0.25;
+    z-index: 99;
+    transition: opacity 0.5s ease-in-out, z-index 0s ease-in-out 0.5s;
 }

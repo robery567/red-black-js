@@ -22,11 +22,25 @@ $('.js-delete-button').on('click', function (event) {
     }
 });
 
+const Overlay = $('.overlay');
 WebWorker.onmessage = function (message) {
     console.log(message.data);
-    $('.js-red-black-container .js-child-left.js-child-right').html('');
-    if (message.data !== null) {
-        drawTree(message.data);
+    if(message.data !== undefined){
+        switch (message.data.action) {
+            case 'start' :
+                Overlay.addClass('overlay--show');
+                break;
+            case 'stop':
+                Overlay.removeClass('overlay--show');
+                break;
+            case 'draw':
+                $('.js-red-black-container .js-child-left.js-child-right').html('');
+                drawTree(message.data);
+                calculateAngle();
+                break;
+        }
+    }else {
+        $('.js-red-black-container .js-child-left.js-child-right').html('');
     }
 };
 
@@ -54,7 +68,7 @@ function nodeExists(key) {
  * @param node {RedBlackNode}
  */
 function findNode(node) {
-    if (node === null) {
+    if (node === undefined) {
         return $('.js-red-black-container');
     }
     return $('.node[data-key="' + node.key + '"]')
@@ -65,19 +79,28 @@ function findNode(node) {
  * @param node {RedBlackNode}
  */
 function drawTree(node) {
-    if (node !== null) {
+    if (node !== undefined) {
         const $parent = findNode(node.Parent);
         const $node = createNode(node);
         let nodeSide = '.node__children:first > .js-child-left';
-        if (node.Parent !== null && parseInt(node.key) > parseInt(node.Parent.key)) {
+        if (node.Parent !== undefined && parseInt(node.key) > parseInt(node.Parent.key)) {
             nodeSide = '.node__children:first > .js-child-right'
         }
         $parent.find(nodeSide).first().html($node);
-        if (node.Left !== null) {
+        if (node.Left !== undefined) {
             drawTree(node.Left);
         }
-        if (node.Right !== null) {
+        if (node.Right !== undefined) {
             drawTree(node.Right);
         }
     }
+}
+
+function calculateAngle() {
+    $('.node__line').each(function () {
+        const me = $(this);
+        const sign = me.parent().parent().hasClass('js-child-left') ? -1 : 1;
+        const angle = sign * Math.atan(25/me.width());
+        me.css('transform','rotate('+ angle +'rad)')
+    })
 }
