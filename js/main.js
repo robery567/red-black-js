@@ -3,7 +3,7 @@ const WebWorker = new Worker('js/worker.js');
 const AddInput = $('.js-add-input');
 $('.js-add-button').on('click', function (event) {
     event.preventDefault();
-    if (AddInput.val() !== "" && !nodeExists(AddInput.val())) {
+    if ( !isNaN(AddInput.val()) && !nodeExists(AddInput.val())) {
         let message = {};
         message.action = 'INSERT';
         message.key = AddInput.val();
@@ -16,7 +16,7 @@ $('.js-add-button').on('click', function (event) {
 const DeleteInput = $('.js-delete-input');
 $('.js-delete-button').on('click', function (event) {
     event.preventDefault();
-    if (DeleteInput.val() !== "" && nodeExists(DeleteInput.val())) {
+    if ( !isNaN(DeleteInput.val()) && nodeExists(DeleteInput.val())) {
         let message = {};
         message.action = 'DELETE';
         message.key = DeleteInput.val();
