@@ -5,6 +5,9 @@ class MessageQueue {
      */
     constructor() {
         this.messages = [];
+        /**
+         * @type {number}
+         */
         this.interval = undefined;
     }
 
@@ -14,11 +17,13 @@ class MessageQueue {
      */
     add(message) {
         if (this.interval === undefined) {
-            this.messages.push({action:'start'});
+            this.messages.push({action: 'start'});
             this.process();
             LOCK = true;
         }
-        message.action = 'draw';
+        if (message !== undefined) {
+            message.action = 'draw';
+        }
         this.messages.push(message);
     }
 
@@ -39,7 +44,7 @@ class MessageQueue {
         if (this.messages.length !== 0) {
             postMessage(this.messages.shift());
         } else {
-            postMessage({action:'stop'});
+            postMessage({action: 'stop'});
             clearInterval(this.interval);
             this.interval = undefined;
             LOCK = false;
@@ -51,7 +56,7 @@ class MessageQueue {
      * @param Node {RedBlackNode}
      */
     sendChanges(Node) {
-        if(Node === undefined){
+        if (Node === undefined) {
             this.add(undefined);
             return;
         }
@@ -85,10 +90,25 @@ class RedBlackNode {
      * @param key
      */
     constructor(key) {
+        /**
+         * @type {RedBlackNode}
+         */
         this.Left = undefined;
+        /**
+         * @type {RedBlackNode}
+         */
         this.Right = undefined;
+        /**
+         * @type {RedBlackNode}
+         */
         this.Parent = undefined;
+        /**
+         * @type {string}
+         */
         this.color = RED;
+        /**
+         * @type {number}
+         */
         this.key = key;
     }
 
@@ -166,6 +186,17 @@ class RedBlackNode {
         }
         return Node.color === BLACK;
     }
+
+    /**
+     * Checks if a node is RED
+     * @param Node {RedBlackNode}
+     */
+    static isRed(Node) {
+        if (Node === undefined) {
+            return false;
+        }
+        return Node.color === RED;
+    }
 }
 
 class RedBlackTree {
@@ -194,7 +225,7 @@ class RedBlackTree {
                 Cursor = Cursor.Right;
             }
         }
-        return Cursor;
+        return undefined;
     }
 
     /**
@@ -275,25 +306,17 @@ class RedBlackTree {
             let Parent = Node.Parent;
             let GrandParent = Node.Parent.Parent;
 
-            /*  Case : A
-                Parent of pt is Left child of Grand-Parent of pt */
             if (Parent === GrandParent.Left) {
 
                 let Uncle = GrandParent.Right;
-
-                /* Case : 1
-                   The uncle of pt is also red
-                   Only Recoloring required */
-                if (Uncle !== undefined && Uncle.color === RED) {
+                if (RedBlackNode.isRed(Uncle)) {
                     GrandParent.color = RED;
                     Parent.color = BLACK;
                     Uncle.color = BLACK;
                     Node = GrandParent;
                     MessageSender.sendChanges(this.Root);
                 } else {
-                    /* Case : 2
-                       pt is right child of its Parent
-                       Left-rotation required */
+
                     if (Node === Parent.Right) {
                         this.rotateLeft(Parent);
                         Node = Parent;
@@ -301,34 +324,23 @@ class RedBlackTree {
                         MessageSender.sendChanges(this.Root);
                     }
 
-                    /* Case : 3
-                       pt is Left child of its Parent
-                       Right-rotation required */
                     this.rotateRight(GrandParent);
                     Parent.swapColor(GrandParent);
                     Node = Parent;
                     MessageSender.sendChanges(this.Root);
                 }
-            }
 
-            /* Case : B
-               Parent of pt is right child of Grand-Parent of pt */
-            else {
+            } else {
+
                 let Uncle = GrandParent.Left;
-
-                /*  Case : 1
-                    The uncle of pt is also red
-                    Only Recoloring required */
-                if ((Uncle !== undefined) && (Uncle.color === RED)) {
+                if (RedBlackNode.isRed(Uncle)) {
                     GrandParent.color = RED;
                     Parent.color = BLACK;
                     Uncle.color = BLACK;
                     Node = GrandParent;
                     MessageSender.sendChanges(this.Root);
                 } else {
-                    /* Case : 2
-                       pt is Left child of its Parent
-                       Right-rotation required */
+
                     if (Node === Parent.Left) {
                         this.rotateRight(Parent);
                         Node = Parent;
@@ -336,14 +348,12 @@ class RedBlackTree {
                         MessageSender.sendChanges(this.Root);
                     }
 
-                    /* Case : 3
-                       pt is right child of its Parent
-                       Left-rotation required */
                     this.rotateLeft(GrandParent);
                     Parent.swapColor(GrandParent);
                     Node = Parent;
                     MessageSender.sendChanges(this.Root);
                 }
+
             }
         }
 
@@ -386,19 +396,19 @@ class RedBlackTree {
         }
     }
 
-// find node that replaces a deleted node in BST 
+
     static binarySearchTreeReplace(Node) {
-        // when node have 2 children
+
         if (Node.Left !== undefined && Node.Right !== undefined) {
             return Node.Right.getSuccessor();
         }
 
-        // when leaf
+
         if (Node.Left === undefined && Node.Right === undefined) {
             return undefined;
         }
 
-        // when single child
+
         if (Node.Left !== undefined) {
             return Node.Left;
         } else {
@@ -412,28 +422,23 @@ class RedBlackTree {
     deleteNode(Node) {
         let Replacement = RedBlackTree.binarySearchTreeReplace(Node);
 
-        // True when Replacement and Node are both black
         let blackBlack = RedBlackNode.isBlack(Replacement) && Node.color === BLACK;
         let Parent = Node.Parent;
 
         if (Replacement === undefined) {
-            // Replacement is undefined therefore Node is leaf
+
             if (Node === this.Root) {
-                // Node is root, making root undefined
                 this.Root = undefined;
             } else {
                 if (blackBlack) {
-                    // Replacement and Node both black
-                    // Node is leaf, fix double black at Node
                     this.fixDoubleBlack(Node);
                 } else {
-                    // Replacement or Node is red
-                    if (Node.getSibling() !== undefined)
-                    // sibling is not undefined, make it red"
-                        Node.getSibling().color = RED;
+                    let Sibling = Node.getSibling();
+                    if (Sibling !== undefined) {
+                        Sibling.color = RED;
+                    }
                 }
 
-                // delete Node from the tree
                 if (Node.isOnLeft()) {
                     Parent.Left = undefined;
                 } else {
@@ -445,13 +450,12 @@ class RedBlackTree {
         }
 
         if (Node.Left === undefined || Node.Right === undefined) {
-            // Node has 1 child
+
             if (Node === this.Root) {
-                // Node is root, assign the value of Replacement to Node, and delete Replacement
                 Node.key = Replacement.key;
                 Node.Left = Node.Right = undefined;
             } else {
-                // Detach Node from tree and move Replacement up
+
                 if (Node.isOnLeft()) {
                     Parent.Left = Replacement;
                 } else {
@@ -459,10 +463,8 @@ class RedBlackTree {
                 }
                 Replacement.Parent = Parent;
                 if (blackBlack) {
-                    // Replacement and Node both black, fix double black at Replacement
                     this.fixDoubleBlack(Replacement);
                 } else {
-                    // Replacement or Node red, color Replacement black
                     Replacement.color = BLACK;
                 }
             }
@@ -470,7 +472,6 @@ class RedBlackTree {
             return;
         }
 
-        // Node has 2 children, swap values with successor and recurse
         Replacement.swapValues(Node);
         MessageSender.sendChanges(this.Root);
         this.deleteNode(Replacement);
@@ -483,37 +484,34 @@ class RedBlackTree {
 
         let Sibling = Node.getSibling(), Parent = Node.Parent;
         if (Sibling === undefined) {
-            // No Sibling, double black pushed up
             this.fixDoubleBlack(Parent);
         } else {
             if (Sibling.color === RED) {
-                // Sibling red
+
                 Parent.color = RED;
                 Sibling.color = BLACK;
                 if (Sibling.isOnLeft()) {
-                    // Left case
                     this.rotateRight(Parent);
                     MessageSender.sendChanges(this.Root);
                 } else {
-                    // right case
                     this.rotateLeft(Parent);
                     MessageSender.sendChanges(this.Root);
                 }
                 this.fixDoubleBlack(Node);
             } else {
-                // Sibling black
+
                 if (Sibling.hasRedChild()) {
-                    // at least 1 red children
+
                     if (Sibling.Left !== undefined && Sibling.Left.color === RED) {
                         if (Sibling.isOnLeft()) {
-                            // Left Left
+
                             Sibling.Left.color = Sibling.color;
                             Sibling.color = Parent.color;
                             MessageSender.sendChanges(this.Root);
                             this.rotateRight(Parent);
                             MessageSender.sendChanges(this.Root);
                         } else {
-                            // right Left
+
                             Sibling.Left.color = Parent.color;
                             MessageSender.sendChanges(this.Root);
                             this.rotateRight(Sibling);
@@ -523,7 +521,7 @@ class RedBlackTree {
                         }
                     } else {
                         if (Sibling.isOnLeft()) {
-                            // Left right
+
                             Sibling.Right.color = Parent.color;
                             MessageSender.sendChanges(this.Root);
                             this.rotateLeft(Sibling);
@@ -531,7 +529,7 @@ class RedBlackTree {
                             this.rotateRight(Parent);
                             MessageSender.sendChanges(this.Root);
                         } else {
-                            // right right
+
                             Sibling.Right.color = Sibling.color;
                             Sibling.color = Parent.color;
                             MessageSender.sendChanges(this.Root);
@@ -542,7 +540,7 @@ class RedBlackTree {
                     Parent.color = BLACK;
                     MessageSender.sendChanges(this.Root);
                 } else {
-                    // 2 black children
+
                     Sibling.color = RED;
                     MessageSender.sendChanges(this.Root);
                     if (Parent.color === BLACK) {
