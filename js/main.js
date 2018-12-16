@@ -8,6 +8,8 @@ $('.js-add-button').on('click', function (event) {
         message.action = 'INSERT';
         message.key = AddInput.val();
         WebWorker.postMessage(message);
+    } else {
+        alert("You can't add a key that already exists.");
     }
 });
 
@@ -19,13 +21,14 @@ $('.js-delete-button').on('click', function (event) {
         message.action = 'DELETE';
         message.key = DeleteInput.val();
         WebWorker.postMessage(message);
+    } else {
+        alert("You can't delete a key that doesn't exist.");
     }
 });
 
 const Overlay = $('.overlay');
 WebWorker.onmessage = function (message) {
-    console.log(message.data);
-    if(message.data !== undefined){
+    if (message.data !== undefined) {
         switch (message.data.action) {
             case 'start' :
                 Overlay.addClass('overlay--show');
@@ -39,7 +42,7 @@ WebWorker.onmessage = function (message) {
                 calculateAngle();
                 break;
         }
-    }else {
+    } else {
         $('.js-red-black-container .js-child-left.js-child-right').html('');
     }
 };
@@ -100,7 +103,7 @@ function calculateAngle() {
     $('.node__line').each(function () {
         const me = $(this);
         const sign = me.parent().parent().hasClass('js-child-left') ? -1 : 1;
-        const angle = sign * Math.atan(25/me.width());
-        me.css('transform','rotate('+ angle +'rad)')
+        const angle = sign * Math.atan(25 / me.width());
+        me.css('transform', 'rotate(' + angle + 'rad)')
     })
 }
