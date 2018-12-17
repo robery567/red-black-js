@@ -8,6 +8,7 @@ $('.js-add-button').on('click', function (event) {
         message.action = 'INSERT';
         message.key = AddInput.val();
         WebWorker.postMessage(message);
+        AddInput.val('');
     } else {
         alert("You can't add a key that already exists.");
     }
@@ -21,6 +22,7 @@ $('.js-delete-button').on('click', function (event) {
         message.action = 'DELETE';
         message.key = DeleteInput.val();
         WebWorker.postMessage(message);
+        DeleteInput.val('');
     } else {
         alert("You can't delete a key that doesn't exist.");
     }
