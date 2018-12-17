@@ -502,7 +502,7 @@ class RedBlackTree {
 
                 if (Sibling.hasRedChild()) {
 
-                    if (Sibling.Left !== undefined && Sibling.Left.color === RED) {
+                    if (RedBlackNode.isRed(Sibling.Left)) {
                         if (Sibling.isOnLeft()) {
 
                             Sibling.Left.color = Sibling.color;
