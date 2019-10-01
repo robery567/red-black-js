@@ -1,36 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Red Black JS</title>
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
-    <link rel="stylesheet" href="css/main.css">
-</head>
-<body>
-<div class="wrapper">
-    <nav class="menu">
-        <div class="menu__item">
-            <label class="menu__item__label" for="add-input">Add nodes</label>
-            <input id="add-input" class="menu__item__input js-add-input" value="" placeholder="Add nodes">
-            <button type="button" class="menu__item__button js-add-button">Add</button>
+    <head>
+        <meta charset="UTF-8">
+        <title>Red Black JS</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+        <link rel="stylesheet" href="css/main.css">
+    </head>
+    
+    <body>
+        <div class="wrapper">
+            <nav class="menu">
+                <div class="menu__item">
+                    <label class="menu__item__label" for="add-input">Add nodes</label>
+                    <input id="add-input" class="menu__item__input js-add-input" value="" placeholder="Add nodes">
+                    <button type="button" class="menu__item__button js-add-button">Add</button>
+                </div>
+                
+                <div class="menu__item">
+                    <label class="menu__item__label" for="delete-input">Delete nodes</label>
+                    <input id="delete-input" class="menu__item__input js-delete-input" value="" placeholder="Delete nodes">
+                    <button type="button" class="menu__item__button js-delete-button">Delete</button>
+                </div>
+            </nav>
+            
+            <section class="content">
+                <div class="node js-red-black-container">
+                    <div class="node__children">
+                        <div class="js-child-left js-child-right"></div>
+                    </div>
+                </div>
+            </section>
         </div>
-        <div class="menu__item">
-            <label class="menu__item__label" for="delete-input">Delete nodes</label>
-            <input id="delete-input" class="menu__item__input js-delete-input" value="" placeholder="Delete nodes">
-            <button type="button" class="menu__item__button js-delete-button">Delete</button>
-        </div>
-    </nav>
-    <section class="content">
-        <div class="node js-red-black-container">
-            <div class="node__children">
-                <div class="js-child-left js-child-right"></div>
-            </div>
-        </div>
-    </section>
-</div>
-<div class="overlay"></div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="js/classes/constants.js"></script>
-<script src="js/main.js"></script>
-</body>
+        
+        <div class="overlay"></div>
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="js/classes/constants.js"></script>
+        <script src="js/main.js"></script>
+    </body>
 </html>
